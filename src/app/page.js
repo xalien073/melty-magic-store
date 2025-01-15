@@ -1,6 +1,6 @@
 // app/page.js
 
-"use client"; // Mark this as a client component
+"use client";
 
 import styles from "./page.module.css";
 import { useState, useEffect } from "react";
@@ -14,11 +14,12 @@ import {
   Container,
 } from "@mui/material";
 import Navbar from "./components/Navbar";
-import SessionProviderWrapper from "./components/SessionProviderWrapper"; // Import the wrapper
 
 export default function Products() {
   const [user, setUser] = useState(null);
   const [products, setProducts] = useState([]);
+  const [newProductName, setNewProductName] = useState(""); // Track the new product name
+  const [newProductAlert, setNewProductAlert] = useState(false); // Boolean for new product alert
 
   const fetchInventory = async () => {
     try {
@@ -45,13 +46,13 @@ export default function Products() {
           user: user.email,
           productName,
           productPrice,
-          productImage
+          productImage,
         }),
       });
-d
+
       if (response.ok) {
         console.log(`${productName} added to cart successfully.`);
-        alert('Added Chocolate!');
+        alert("Added Chocolate!");
       } else {
         console.error("Error adding product to cart:", await response.text());
       }
@@ -70,10 +71,9 @@ d
       setUser(JSON.parse(storedUser));
     }
 
-    fetchInventory(); // Fetch on initial render
+    fetchInventory();
 
-    const ws = new WebSocket("ws://localhost:8080"); // Replace with your actual WebSocket URL
-
+    const ws = new WebSocket("wss://melty-magic-inventory-pulse.azurewebsites.net");
     ws.onopen = () => {
       console.log("Connected to WebSocket");
     };
@@ -82,34 +82,35 @@ d
       try {
         const data = JSON.parse(message.data);
 
-        // Iterate through the events received from the server
         data.forEach((event) => {
           const { eventType, data: productData } = event;
 
-          // Handle ProductCreated events
           if (eventType === "ProductCreated") {
             setProducts((prevProducts) => {
-              // Check if the product already exists
               const existingProduct = prevProducts.find(
                 (p) => p.name === productData.name
               );
-              if (existingProduct) return prevProducts; // Avoid duplicate entries
-              return [...prevProducts, productData]; // Add new product
+              if (existingProduct) return prevProducts;
+              return [...prevProducts, productData];
             });
+            const audio = new Audio("/notify.mp3");
+            audio.play();
+
+            setNewProductName(productData.name);
+            setNewProductAlert(true);
+            setTimeout(() => setNewProductAlert(false), 9000);
           }
 
-          // Handle ProductUpdated events
           if (eventType === "ProductUpdated") {
             setProducts((prevProducts) =>
-              prevProducts.map(
-                (product) =>
-                  product.name === productData.name
-                    ? {
-                        ...product,
-                        price: productData.price,
-                        quantityAvailable: productData.quantityAvailable,
-                      } // Update the product
-                    : product // Keep other products unchanged
+              prevProducts.map((product) =>
+                product.name === productData.name
+                  ? {
+                      ...product,
+                      price: productData.price,
+                      quantityAvailable: productData.quantityAvailable,
+                    }
+                  : product
               )
             );
           }
@@ -127,20 +128,21 @@ d
       console.log("WebSocket connection closed");
     };
 
-    // Cleanup WebSocket connection on component unmount
     return () => {
       ws.close();
     };
   }, []);
 
   return (
-    // <SessionProviderWrapper>
     <>
-      <Navbar login={ loginFromNav } logout={ () => setUser(null) } />
-      <hr></hr>
-<h1>
-  {user ? `Welcome, ${user.email}` : "Not Logged In"}
-</h1>
+      <Navbar
+        login={loginFromNav}
+        logout={() => setUser(null)}
+        newProductAlert={newProductAlert}
+        newProductName={newProductName}
+      />
+      <hr />
+      {/* <h1>{user ? `Welcome, ${user.email}` : "Not Logged In"}</h1> */}
 
       <Container>
         <Typography variant="h4" gutterBottom>
@@ -152,9 +154,9 @@ d
               <Card>
                 <CardMedia
                   component="img"
-                  height="200" // Set the desired height
+                  height="200"
                   image={product.imageUrl}
-                  alt={product.name} // Alt text for accessibility
+                  alt={product.name}
                 />
                 <CardContent>
                   <Typography variant="h6">{product.name}</Typography>
@@ -167,7 +169,13 @@ d
                       <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => addToCart(product.name, product.price, product.imageUrl)}
+                        onClick={() =>
+                          addToCart(
+                            product.name,
+                            product.price,
+                            product.imageUrl
+                          )
+                        }
                       >
                         Add to Cart
                       </Button>
@@ -188,13 +196,10 @@ d
         </Grid>
       </Container>
     </>
-    // </SessionProviderWrapper>
   );
 }
 
-// app/page.js
-
-// "use client";
+// "use client"; // Mark this as a client component
 
 // import styles from "./page.module.css";
 // import { useState, useEffect } from "react";
@@ -208,8 +213,10 @@ d
 //   Container,
 // } from "@mui/material";
 // import Navbar from "./components/Navbar";
+// import SessionProviderWrapper from "./components/SessionProviderWrapper"; // Import the wrapper
 
 // export default function Products() {
+//   const [user, setUser] = useState(null);
 //   const [products, setProducts] = useState([]);
 
 //   const fetchInventory = async () => {
@@ -226,7 +233,7 @@ d
 //     }
 //   };
 
-//   const addToCart = async (productName, price) => {
+//   const addToCart = async (productName, productPrice, productImage) => {
 //     try {
 //       const response = await fetch("/api/add-to-cart", {
 //         method: "POST",
@@ -234,13 +241,16 @@ d
 //           "Content-Type": "application/json",
 //         },
 //         body: JSON.stringify({
+//           user: user.email,
 //           productName,
-//           price,
+//           productPrice,
+//           productImage
 //         }),
 //       });
-
+// d
 //       if (response.ok) {
 //         console.log(`${productName} added to cart successfully.`);
+//         alert('Added Chocolate!');
 //       } else {
 //         console.error("Error adding product to cart:", await response.text());
 //       }
@@ -249,11 +259,20 @@ d
 //     }
 //   };
 
+//   const loginFromNav = (u) => {
+//     setUser(u);
+//   };
+
 //   useEffect(() => {
+//     const storedUser = localStorage.getItem("UserMeltyMagic");
+//     if (storedUser) {
+//       setUser(JSON.parse(storedUser));
+//     }
+
 //     fetchInventory(); // Fetch on initial render
 
-//     const ws = new WebSocket("ws://localhost:8080"); // Replace with your actual WebSocket URL
-
+//     // const ws = new WebSocket("ws://localhost:8080"); // Replace with your actual WebSocket URL
+//     const ws = new WebSocket("wss://melty-magic-inventory-pulse.azurewebsites.net");
 //     ws.onopen = () => {
 //       console.log("Connected to WebSocket");
 //     };
@@ -314,45 +333,60 @@ d
 //   }, []);
 
 //   return (
+//     // <SessionProviderWrapper>
 //     <>
-//     <Navbar />
-//     <Container>
+//       <Navbar login={ loginFromNav } logout={ () => setUser(null) } />
+//       <hr></hr>
+// <h1>
+//   {user ? `Welcome, ${user.email}` : "Not Logged In"}
+// </h1>
 
-//       <Grid container spacing={4}>
-//         {products.map((product) => (
-//           <Grid item xs={12} sm={6} md={4} key={product.name}>
-//             <Card>
-//               <CardMedia
-//                 component="img"
-//                 height="200" // Set the desired height
-//                 image={product.imageUrl}
-//                 alt={product.name} // Alt text for accessibility
-//               />
-//               <CardContent>
-//                 <Typography variant="h6">{product.name}</Typography>
-//                 <Typography variant="h6">Price: ${product.price}</Typography>
-//                 <Typography variant="h6">
-//                   Quantity: {product.quantityAvailable}
-//                 </Typography>
-//                 {product.quantityAvailable > 0 ? (
-//                   <Button
-//                     variant="contained"
-//                     color="primary"
-//                     onClick={() => addToCart(product.name, product.price)}
-//                   >
-//                     Add to Cart
-//                   </Button>
-//                 ) : (
-//                   <Typography variant="body1" color="error">
-//                     Out of Stock!
+//       <Container>
+//         <Typography variant="h4" gutterBottom>
+//           Melty Magic: Where Every Bite Brings Sweet Enchantment!
+//         </Typography>
+//         <Grid container spacing={4}>
+//           {products.map((product) => (
+//             <Grid item xs={12} sm={6} md={4} key={product.name}>
+//               <Card>
+//                 <CardMedia
+//                   component="img"
+//                   height="200" // Set the desired height
+//                   image={product.imageUrl}
+//                   alt={product.name} // Alt text for accessibility
+//                 />
+//                 <CardContent>
+//                   <Typography variant="h6">{product.name}</Typography>
+//                   <Typography variant="h6">Price: ${product.price}</Typography>
+//                   <Typography variant="h6">
+//                     Quantity: {product.quantityAvailable}
 //                   </Typography>
-//                 )}
-//               </CardContent>
-//             </Card>
-//           </Grid>
-//         ))}
-//       </Grid>
-//     </Container>
+//                   {user ? (
+//                     product.quantityAvailable > 0 ? (
+//                       <Button
+//                         variant="contained"
+//                         color="primary"
+//                         onClick={() => addToCart(product.name, product.price, product.imageUrl)}
+//                       >
+//                         Add to Cart
+//                       </Button>
+//                     ) : (
+//                       <Typography variant="body1" color="error">
+//                         Out of Stock!
+//                       </Typography>
+//                     )
+//                   ) : (
+//                     <Typography variant="body1" color="textSecondary">
+//                       Please log in to start shopping!
+//                     </Typography>
+//                   )}
+//                 </CardContent>
+//               </Card>
+//             </Grid>
+//           ))}
+//         </Grid>
+//       </Container>
 //     </>
+//     // </SessionProviderWrapper>
 //   );
 // }

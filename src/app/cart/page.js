@@ -17,6 +17,8 @@ import Navbar from "../components/Navbar";
 export default function Cart() {
   const [user, setUser] = useState(null);
   const [cart, setCart] = useState([]);
+  const [newProductName, setNewProductName] = useState(""); // Track the new product name
+  const [newProductAlert, setNewProductAlert] = useState(false); // Boolean for new product alert
 
   // Fetch user's cart
   const fetchCart = async (u) => {
@@ -71,9 +73,12 @@ export default function Cart() {
 
   return (
     <>
-      <Navbar login={loginFromNav} logout={() => setUser(null)} />
+      <Navbar login={loginFromNav} logout={() => setUser(null)} 
+        newProductAlert={newProductAlert}
+        newProductName={newProductName}
+        />
       <hr></hr>
-      <h1>{user ? `Welcome, ${user.email}` : "Not Logged In"}</h1>
+      {/* <h1>{user ? `Welcome, ${user.email}` : "Not Logged In"}</h1> */}
       <Container>
         <Typography variant="h4" gutterBottom>
           My Cart
@@ -84,7 +89,7 @@ export default function Cart() {
             <strong style={{ margin: "20px", fontSize: "32px" }}>
               Cart Total: $
               {cart
-                .reduce((total, item) => total + item.price * item.quantity, 0)
+                .reduce((total, item) => total + item.price, 0)
                 .toFixed(2)}
             </strong>
 
@@ -112,6 +117,7 @@ export default function Cart() {
                 <CardContent>
                   <Typography variant="h6">{product.name}</Typography>
                   <Typography variant="h6">Price: ${product.price}</Typography>
+                  <Typography variant="h6">Quantity: {product.quantity}</Typography>
                   <Button
                     variant="contained"
                     color="secondary"
