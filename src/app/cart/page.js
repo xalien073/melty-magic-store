@@ -23,7 +23,8 @@ export default function Cart() {
   // Fetch user's cart
   const fetchCart = async (u) => {
     try {
-      const response = await fetch(`/api/get-cart?user=${u.email}`);
+      const timestamp = new Date().getTime(); // Add timestamp to prevent caching
+      const response = await fetch(`/api/get-cart?user=${u.email}&timestamp=${timestamp}`);
       const data = await response.json();
       if (response.ok) {
         setCart(data.cart);
