@@ -2,7 +2,9 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCart, setUser, updateQuantity, removeFromCart } from "../store/cartSlice";
 import {
   Container,
   Typography,
@@ -15,91 +17,52 @@ import {
 import Navbar from "../components/Navbar";
 
 export default function Cart() {
-  const [user, setUser] = useState(null);
-  const [cart, setCart] = useState([]);
-  const [newProductName, setNewProductName] = useState(""); // Track the new product name
-  const [newProductAlert, setNewProductAlert] = useState(false); // Boolean for new product alert
+  const dispatch = useDispatch();
+  const { user, cart, status } = useSelector((state) => state.cart);
 
-  // Fetch user's cart
-  const fetchCart = async (u) => {
-    try {
-      const timestamp = new Date().getTime(); // Add timestamp to prevent caching
-      const response = await fetch(`/api/get-cart?user=${u.email}&timestamp=${timestamp}`);
-      const data = await response.json();
-      if (response.ok) {
-        setCart(data.cart);
-      } else {
-        alert("Error fetching cart!");
-        console.error("Error fetching cart:", data.error);
-      }
-    } catch (error) {
-      alert("Failure!");
-      console.error("Failed to fetch cart:", error);
-    }
-  };
-
-  // Remove item from the cart
-  const handleRemove = async (productId) => {
-    try {
-      const response = await fetch(`/api/remove-from-cart`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        // Update cart state
-        setCart(cart.filter((product) => product.id !== productId));
-      } else {
-        console.error("Error removing item from cart:", data.error);
-      }
-    } catch (error) {
-      console.error("Failed to remove item from cart:", error);
-    }
-  };
-
+  // Set user and fetch cart
   const loginFromNav = (u) => {
-    setUser(u);
-    fetchCart(u);
+    dispatch(setUser(u));
+    dispatch(fetchCart(u.email));
   };
 
-  // Fetch cart on component mount
   useEffect(() => {
     const storedUser = localStorage.getItem("UserMeltyMagic");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      fetchCart(JSON.parse(storedUser));
+      const userData = JSON.parse(storedUser);
+      dispatch(setUser(userData));
+      dispatch(fetchCart(userData.email));
     }
-  }, []);
+  }, [dispatch]);
+
+  // Function to update quantity
+  const handleUpdateQuantity = (productId, newQuantity) => {
+    if (newQuantity > 0) {
+      dispatch(updateQuantity({ id: productId, quantity: newQuantity }));
+    } else {
+      dispatch(removeFromCart(productId));
+    }
+  };
 
   return (
     <>
-      <Navbar login={loginFromNav} logout={() => setUser(null)} 
-        newProductAlert={newProductAlert}
-        newProductName={newProductName}
-        />
-      <hr></hr>
-      {/* <h1>{user ? `Welcome, ${user.email}` : "Not Logged In"}</h1> */}
+      <Navbar login={loginFromNav} logout={() => dispatch(setUser(null))} />
+      <hr />
       <Container>
         <Typography variant="h4" gutterBottom>
           My Cart
         </Typography>
-        {cart.length > 0 && (
+
+        {status === "loading" && <Typography>Loading cart...</Typography>}
+        {status === "failed" && <Typography>Error loading cart.</Typography>}
+
+        {cart.length > 0 && status === "idle" && (
           <>
-            {/* Calculate and display the cart total */}
             <strong style={{ margin: "20px", fontSize: "32px" }}>
-              Cart Total: $
-              {cart
-                .reduce((total, item) => total + item.price, 0)
-                .toFixed(2)}
+              Cart Total: ${cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
             </strong>
 
-            {/* Place Order Button */}
-            <Button
-              variant="contained"
-              color="primary"
-              style={{ margin: "0 0 20px 600px" }}
-            >
+            <Button variant="contained" color="primary" style={{ margin: "0 0 20px 600px" }}>
               Place Order
             </Button>
           </>
@@ -107,22 +70,39 @@ export default function Cart() {
 
         <Grid container spacing={4}>
           {cart.map((product) => (
-            <Grid item xs={12} sm={6} md={4} key={product.name}>
+            <Grid item xs={12} sm={6} md={4} key={product.id}>
               <Card>
-                <CardMedia
-                  component="img"
-                  height="200" // Set the desired height
-                  image={product.imageUrl}
-                  alt={product.name} // Alt text for accessibility
-                />
+                <CardMedia component="img" height="200" image={product.imageUrl} alt={product.name} />
                 <CardContent>
                   <Typography variant="h6">{product.name}</Typography>
                   <Typography variant="h6">Price: ${product.price}</Typography>
-                  <Typography variant="h6">Quantity: {product.quantity}</Typography>
+
+                  {/* Quantity controls */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
+                    >
+                      -
+                    </Button>
+
+                    <Typography variant="h6">{product.quantity}</Typography>
+
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => handleUpdateQuantity(product.id, product.quantity + 1)}
+                    >
+                      +
+                    </Button>
+                  </div>
+
                   <Button
                     variant="contained"
                     color="secondary"
-                    onClick={() => handleRemove(product.name)}
+                    onClick={() => handleUpdateQuantity(product.id, 0)}
+                    style={{ marginTop: "10px" }}
                   >
                     Remove
                   </Button>
@@ -131,8 +111,114 @@ export default function Cart() {
             </Grid>
           ))}
         </Grid>
-        
       </Container>
     </>
   );
 }
+
+// "use client";
+
+// import { useEffect } from "react";
+// import { useDispatch, useSelector } from "react-redux";
+// import { fetchCart, setUser, updateQuantity, removeFromCart } from "../store/cartSlice";
+// import {
+//   Container,
+//   Typography,
+//   Button,
+//   Grid,
+//   Card,
+//   CardMedia,
+//   CardContent,
+// } from "@mui/material";
+// import Navbar from "../components/Navbar";
+
+// export default function Cart() {
+//   const dispatch = useDispatch();
+//   const { user, cart, status } = useSelector((state) => state.cart);
+
+//   // Set user and fetch cart
+//   const loginFromNav = (u) => {
+//     dispatch(setUser(u));
+//     dispatch(fetchCart(u.email));
+//   };
+  
+//   useEffect(() => {
+//     const storedUser = localStorage.getItem("UserMeltyMagic");
+//     if (storedUser) {
+//       const userData = JSON.parse(storedUser);
+//       dispatch(setUser(userData));
+//       dispatch(fetchCart(userData.email));
+//     }
+//   }, [dispatch]);
+
+//   return (
+//     <>
+//       <Navbar login={loginFromNav} logout={() => dispatch(setUser(null))} />
+//       <hr />
+//       <Container>
+//         <Typography variant="h4" gutterBottom>
+//           My Cart
+//         </Typography>
+
+//         {status === "loading" && <Typography>Loading cart...</Typography>}
+//         {status === "failed" && <Typography>Error loading cart.</Typography>}
+
+//         {cart.length > 0 && status === "idle" && (
+//           <>
+//             <strong style={{ margin: "20px", fontSize: "32px" }}>
+//               Cart Total: ${cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
+//             </strong>
+
+//             <Button variant="contained" color="primary" style={{ margin: "0 0 20px 600px" }}>
+//               Place Order
+//             </Button>
+//           </>
+//         )}
+
+//         <Grid container spacing={4}>
+//           {cart.map((product) => (
+//             <Grid item xs={12} sm={6} md={4} key={product.id}>
+//               <Card>
+//                 <CardMedia component="img" height="200" image={product.imageUrl} alt={product.name} />
+//                 <CardContent>
+//                   <Typography variant="h6">{product.name}</Typography>
+//                   <Typography variant="h6">Price: ${product.price}</Typography>
+
+//                   {/* Quantity controls */}
+//                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+//                     <Button
+//                       variant="outlined"
+//                       color="secondary"
+//                       onClick={() => handleUpdateQuantity(product.id, product.quantity - 1)}
+//                     >
+//                       -
+//                     </Button>
+
+//                     <Typography variant="h6">{product.quantity}</Typography>
+
+//                     <Button
+//                       variant="outlined"
+//                       color="primary"
+//                       onClick={() => handleUpdateQuantity(product.id, product.quantity + 1)}
+//                     >
+//                       +
+//                     </Button>
+//                   </div>
+
+//                   <Button
+//                     variant="contained"
+//                     color="secondary"
+//                     onClick={() => handleUpdateQuantity(product.id, 0)}
+//                     style={{ marginTop: "10px" }}
+//                   >
+//                     Remove
+//                   </Button>
+//                 </CardContent>
+//               </Card>
+//             </Grid>
+//           ))}
+//         </Grid>
+//       </Container>
+//     </>
+//   );
+// }

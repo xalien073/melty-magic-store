@@ -57,6 +57,7 @@ export default function Products() {
       }
     } catch (error) {
       console.error("Failed to add product to cart:", error);
+      alert("Failed to add product to cart!");
     }
   };
 
