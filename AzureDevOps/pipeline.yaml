@@ -12,7 +12,7 @@ pool:
     - agent.name -equals JenkinsMaster
 
 variables:
-  DOCKER_IMAGE: "xalien073/melty-magic-store-az-do:$(Build.BuildId)"
+  DOCKER_IMAGE: "xalien073/mmsazdo:$(Build.BuildId)"
   SONAR_URL: "http://20.44.59.222:9000"
   GIT_REPO_NAME: "xalien073/melty-magic-store"
   GIT_USER_NAME: "xalien073"
@@ -108,7 +108,7 @@ stages:
           - task: Docker@2
             inputs:
               containerRegistry: "Docker Hub Service Connection" # Docker Hub service connection name
-              repository: "xalien073/melty-magic-store-az-do"
+              repository: "xalien073/mmsazdo"
               command: "push"
               tags: "$(Build.BuildId)"
             displayName: "🚢 Push Docker Image"
