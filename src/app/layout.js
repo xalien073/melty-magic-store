@@ -2,7 +2,7 @@
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Providers from "./providers.js"; // Import the client component, fixed the typo!
+import Providers from "./Providers.js"; // Import the client component, fixed the typo!
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
