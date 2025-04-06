@@ -12,7 +12,7 @@ pool:
     - agent.name -equals JenkinsMaster
 
 variables:
-  DOCKER_IMAGE: "xalien073/mmsazdo:$(Build.BuildId)"
+  DOCKER_IMAGE: "xalien073/melty-magic-store-az-do:$(Build.BuildId)"
   SONAR_URL: "http://20.44.59.222:9000"
   GIT_REPO_NAME: "xalien073/melty-magic-store"
   GIT_USER_NAME: "xalien073"
@@ -86,8 +86,6 @@ stages:
           - script: |
               docker --version
               echo "🐳 Building Docker image for MeltyMagicStore!"
-              pwd
-              ls
               docker build -t $(DOCKER_IMAGE) .
             displayName: "Docker Build"
 
@@ -110,7 +108,7 @@ stages:
           - task: Docker@2
             inputs:
               containerRegistry: "Docker Hub Service Connection" # Docker Hub service connection name
-              repository: "xalien073/mmsazdo"
+              repository: "xalien073/melty-magic-store-az-do"
               command: "push"
               tags: "$(Build.BuildId)"
             displayName: "🚢 Push Docker Image"
