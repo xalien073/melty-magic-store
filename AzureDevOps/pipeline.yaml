@@ -85,7 +85,7 @@ stages:
         steps:
           - script: |
               docker --version
-              echo "🐳 Building Docker image for AssignMentor!"
+              echo "🐳 Building Docker image for MeltyMagicStore!"
               pwd
               ls
               docker build -t $(DOCKER_IMAGE) .
