@@ -4,7 +4,7 @@ metadata:
   name: {{ .Release.Name }}-app
   labels:
     app: {{ .Release.Name }}-app
-    version: v1
+    version: v2
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: melty-magic-store-app
-        image: "{{ .Values.image.repository }}:156
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         ports:
         - containerPort: {{ .Values.service.targetPort }}
           protocol: TCP
