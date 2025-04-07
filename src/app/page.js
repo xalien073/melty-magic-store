@@ -153,7 +153,7 @@ export default function Products() {
   gutterBottom 
   style={{ color: 'white' }}
 >
-  Melty Magic: Where Every Bite Brings Sweet Enchantment!
+  Melty Magic Version 2: Where Every Bite Brings Sweet Enchantment!
 </Typography>
 
         <Grid container spacing={4}>

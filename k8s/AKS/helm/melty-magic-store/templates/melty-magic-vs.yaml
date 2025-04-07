@@ -1,0 +1,18 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: melty-magic
+  namespace: default
+spec:
+  hosts:
+    - melty-magic-store-service
+  http:
+    - route:
+        - destination:
+            host: melty-magic-store-service
+            subset: v1
+          weight: 60
+        - destination:
+            host: melty-magic-store-service
+            subset: v2
+          weight: 40
