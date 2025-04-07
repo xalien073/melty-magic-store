@@ -11,8 +11,8 @@ spec:
         - destination:
             host: melty-magic-store-service
             subset: v1
-          weight: 60
+          weight: 100
         - destination:
             host: melty-magic-store-service
             subset: v2
-          weight: 40
+          weight: 0
