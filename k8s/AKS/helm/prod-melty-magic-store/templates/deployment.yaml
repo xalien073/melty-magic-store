@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-app
+  labels:
+    app: {{ .Release.Name }}-app
+    version: v1
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-app
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-app
+    spec:
+      containers:
+      - name: melty-magic-store-app
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: {{ .Values.service.targetPort }}
+          protocol: TCP
+        # Uncomment if volumeMounts and volumes are needed
+        # volumeMounts:
+        # - name: next-volume
+        #   mountPath: /app/.next/server/app/cm
+      # volumes:
+      # - name: next-volume
+      #   configMap:
+      #     name: next-cm
