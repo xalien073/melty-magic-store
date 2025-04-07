@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-app
+  name: melty-magic-store-app
   labels:
-    app: {{ .Release.Name }}-app
+    app: melty-magic-store-app
     version: v1
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-app
+      app: melty-magic-store-app
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-app
+        app: melty-magic-store-app
     spec:
       containers:
       - name: melty-magic-store-app
