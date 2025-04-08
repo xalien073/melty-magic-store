@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-app
+  name: {{ .Release.Name }}-app-v2
   labels:
     app: {{ .Release.Name }}-app
     version: v2
@@ -10,10 +10,12 @@ spec:
   selector:
     matchLabels:
       app: {{ .Release.Name }}-app
+      version: v2
   template:
     metadata:
       labels:
         app: {{ .Release.Name }}-app
+        version: v2
     spec:
       containers:
       - name: melty-magic-store-app
