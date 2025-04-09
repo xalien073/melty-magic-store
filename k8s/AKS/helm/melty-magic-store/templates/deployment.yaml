@@ -23,7 +23,7 @@ spec:
         image: "{{ .Values.image.repository }}:156"
         ports:
         - containerPort: {{ .Values.service.targetPort }}
-          protocol: TCP
+          # protocol: TCP
         # Uncomment if volumeMounts and volumes are needed
         # volumeMounts:
         # - name: next-volume
@@ -58,7 +58,7 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         ports:
         - containerPort: {{ .Values.service.targetPort }}
-          protocol: TCP
+          # protocol: TCP
         # Uncomment if volumeMounts and volumes are needed
         # volumeMounts:
         # - name: next-volume
