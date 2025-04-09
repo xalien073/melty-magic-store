@@ -17,6 +17,7 @@ spec:
         app: melty-magic-store-app
         version: v1
     spec:
+      serviceAccountName: melty-magic-store-service
       containers:
       - name: melty-magic-store-app
         image: "{{ .Values.image.repository }}:156"
@@ -51,6 +52,7 @@ spec:
         app: {{ .Release.Name }}-app
         version: v2
     spec:
+      serviceAccountName: melty-magic-store-service
       containers:
       - name: melty-magic-store-app
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
