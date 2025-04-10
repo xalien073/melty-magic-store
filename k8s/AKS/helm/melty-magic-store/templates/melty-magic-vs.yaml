@@ -5,8 +5,8 @@ metadata:
   namespace: default
 spec:
   hosts:
-    - melty-magic-store.20.44.59.222.nip.io
-    # - melty-magic-store-service
+    # - melty-magic-store.20.44.59.222.nip.io
+    - melty-magic-store-service
   http:
     - route:
         - destination:
