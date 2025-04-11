@@ -10,10 +10,10 @@ spec:
   http:
     - route:
         - destination:
-            host: melty-magic-store-service
+            host: melty-magic-store-service-v1
             subset: v1
-          weight: 100
+          weight: 10
         - destination:
             host: melty-magic-store-service
             subset: v2
-          weight: 0
+          weight: 90
