@@ -13,11 +13,11 @@ spec:
     - destination:
         host: melty-magic-store-service
         subset: v1
-      weight: 0
+      weight: 100
     - destination:
         host: melty-magic-store-service
         subset: v2
-      weight: 100
+      weight: 0
 
 
 # apiVersion: networking.istio.io/v1
