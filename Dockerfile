@@ -33,3 +33,4 @@ COPY --from=builder /app/public ./public
 # Expose port and set the default command
 EXPOSE 3000
 CMD ["npm", "start"]
+# Changed endings from CRLF to LF!
