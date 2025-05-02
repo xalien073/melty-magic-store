@@ -4,17 +4,17 @@ metadata:
   name: melty-magic
   namespace: default
 spec:
-  hosts:
-  - melty-magic-store.70.153.56.117.nip.io
   gateways:
   - melty-magic-gateway
+  hosts:
+  - melty-magic-store.70.153.56.117.nip.io
   http:
   - route:
     - destination:
         host: melty-magic-store-service
         subset: v1
-      weight: 80
+      weight: 100
     - destination:
         host: melty-magic-store-service
         subset: v2
-      weight: 20
+      weight: 0
