@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   hosts:
-  - melty-magic-store.20.44.59.222.nip.io
+  - melty-magic-store.70.153.56.117.nip.io
   gateways:
   - melty-magic-gateway
   http:
@@ -13,29 +13,8 @@ spec:
     - destination:
         host: melty-magic-store-service
         subset: v1
-      weight: 100
+      weight: 80
     - destination:
         host: melty-magic-store-service
         subset: v2
-      weight: 0
-
-
-# apiVersion: networking.istio.io/v1
-# kind: VirtualService
-# metadata:
-#   name: melty-magic
-#   namespace: default
-# spec:
-#   hosts:
-#     # - melty-magic-store.20.44.59.222.nip.io
-#     - melty-magic-store-service
-#   http:
-#     - route:
-#         - destination:
-#             host: melty-magic-store-service
-#             subset: v1
-#           weight: 0
-#         - destination:
-#             host: melty-magic-store-service
-#             subset: v2
-#           weight: 100
+      weight: 20

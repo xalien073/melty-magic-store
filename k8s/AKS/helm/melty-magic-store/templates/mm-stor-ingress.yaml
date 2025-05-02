@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: nginx  # Using Nginx
   rules:
-    - host: melty-magic-store.20.44.59.222.nip.io
+    - host: melty-magic-store.70.153.56.117.nip.io
       http:
         paths:
           - path: /
