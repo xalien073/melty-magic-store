@@ -12,4 +12,5 @@ spec:
       name: http
       protocol: HTTP
     hosts:
-    - melty-magic-store.70.153.56.117.nip.io  # Replace with your actual domain or nip.io mapping
+    - melty-magic-store.70.153.56.117.nip.io
+    - argocd.70.153.56.117.nip.io
