@@ -2,7 +2,7 @@ replicaCount: 2
 
 image:
   repository: xalien073/melty-magic-store-az-do
-  tag: 157#163
+  tag: 157 #163
   pullPolicy: IfNotPresent
 
 service:
